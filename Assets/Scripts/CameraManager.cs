@@ -12,8 +12,10 @@ public class CameraManager : MonoBehaviour
     public LayerMask collisionLayers; // layers we want camera to collide with
     private float defaultPosition;
     private Vector3 cameraFollowVelocity = Vector3.zero;
+    private Vector3 cameraVectorPosition;
 
-    public float cameraCollisionR;
+    public float cameraCollisionR = 2;
+    private float minCollisionOffset = 0.2f;
     public float cameraFollowSpeed = 0.2f;
     public float cameraCollisionOffset = 0.2f;
     public float cameraLookSpeed = 2;
@@ -43,6 +45,7 @@ public class CameraManager : MonoBehaviour
     {
         FollowTarget();
         RotateCamera();
+        HandleCameraCollisions();
     }
 
     private void FollowTarget()
@@ -98,5 +101,13 @@ public class CameraManager : MonoBehaviour
             float distance = Vector3.Distance(cameraPivot.position, hit.point);
             targetPosition = targetPosition - (distance - cameraCollisionOffset);
         }
+
+        if(Mathf.Abs(targetPosition) < minCollisionOffset)
+        {
+            targetPosition = targetPosition - minCollisionOffset;
+        }
+
+        cameraVectorPosition.z = Mathf.Lerp(cameraTransform.localPosition.z, targetPosition, 0.2f);
+        cameraTransform.localPosition = cameraVectorPosition;
     }
 }
