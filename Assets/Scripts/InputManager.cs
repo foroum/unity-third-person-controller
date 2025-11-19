@@ -13,9 +13,13 @@ public class InputManager : MonoBehaviour
 
     [Header("Movement Input")]
     public Vector2 movementInput;      // raw input (x,y) from WASD / stick
-    public float verticalInput;        // input.y
-    public float horizontalInput;      // input.x
+    public float verticalInput;
+    public float horizontalInput;
     public float moveAmount;           // 0..1 (how strong the movement is)
+
+    public Vector2 cameraInput;
+    public float cameraInputX;
+    public float cameraInputY;
 
     private void Awake()
     {
@@ -35,6 +39,8 @@ public class InputManager : MonoBehaviour
 
             playerControls.PlayerMovement.Movement.canceled += ctx =>
                 movementInput = Vector2.zero;
+
+            playerControls.PlayerMovement.Camera.performed += i => cameraInput = i.ReadValue<Vector2>();
         }
 
         playerControls.Enable();
@@ -61,6 +67,10 @@ public class InputManager : MonoBehaviour
         // Convert Vector2 into separate axes
         verticalInput = movementInput.y;
         horizontalInput = movementInput.x;
+
+        // for camera
+        cameraInputX = cameraInput.x;
+        cameraInputY = cameraInput.y;
 
         // How strong is the movement? (used for animations)
         moveAmount = Mathf.Clamp01(Mathf.Abs(horizontalInput) + Mathf.Abs(verticalInput));
