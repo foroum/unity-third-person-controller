@@ -9,10 +9,13 @@ public class CameraManager : MonoBehaviour
     public Transform targetTransform;  // the object the camera will follow
     public Transform cameraPivot; // the object the camera uses to pivot
     public Transform cameraTransform; // transform of actual camera obj in scene
+    public LayerMask collisionLayers; // layers we want camera to collide with
     private float defaultPosition;
     private Vector3 cameraFollowVelocity = Vector3.zero;
 
+    public float cameraCollisionR;
     public float cameraFollowSpeed = 0.2f;
+    public float cameraCollisionOffset = 0.2f;
     public float cameraLookSpeed = 2;
     public float cameraPivotSpeed = 2;
     private Vector3 offset;
@@ -85,5 +88,15 @@ public class CameraManager : MonoBehaviour
     private void HandleCameraCollisions()
     {
         float targetPosition = defaultPosition;
+        RaycastHit hit;
+        Vector3 direction = cameraTransform.position - cameraPivot.position;
+        direction.Normalize();
+
+        if (Physics.SphereCast
+            (cameraPivot.transform.position, cameraCollisionR, direction, out hit, Mathf.Abs(targetPosition), collisionLayers))
+            {
+            float distance = Vector3.Distance(cameraPivot.position, hit.point);
+            targetPosition = targetPosition - (distance - cameraCollisionOffset);
+        }
     }
 }

@@ -265,11 +265,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetTransform: {fileID: 188476044}
   cameraPivot: {fileID: 683697368}
+  cameraTransform: {fileID: 0}
+  collisionLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  cameraCollisionR: 0
   cameraFollowSpeed: 0.2
+  cameraCollisionOffset: 0.2
   cameraLookSpeed: 2
   cameraPivotSpeed: 2
   lookAngle: 0
   pivotAngle: 0
+  minPivotAngle: -35
+  maxPivotAngle: 35
 --- !u!4 &188476044 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7876023681238672744, guid: fc123bad5bd59b44d873d9c613b274d7, type: 3}
