@@ -17,6 +17,8 @@ public class CameraManager : MonoBehaviour
 
     public float lookAngle; // up and down look
     public float pivotAngle; // left and right look
+    public float minPivotAngle = -35;
+    public float maxPivotAngle = 35;
 
     private void Awake()
     {
@@ -61,6 +63,7 @@ public class CameraManager : MonoBehaviour
     {
         lookAngle = lookAngle + (inputManager.cameraInputX * cameraLookSpeed);
         pivotAngle = pivotAngle + (inputManager.cameraInputY * cameraPivotSpeed);
+        pivotAngle = Mathf.Clamp(pivotAngle, minPivotAngle, maxPivotAngle);
 
         Vector3 rotation = Vector3.zero;
         rotation.y = lookAngle;
