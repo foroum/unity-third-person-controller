@@ -264,7 +264,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetTransform: {fileID: 188476044}
+  cameraPivot: {fileID: 683697368}
   cameraFollowSpeed: 0.2
+  cameraLookSpeed: 2
+  cameraPivotSpeed: 2
+  lookAngle: 0
+  pivotAngle: 0
 --- !u!4 &188476044 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7876023681238672744, guid: fc123bad5bd59b44d873d9c613b274d7, type: 3}
@@ -1573,6 +1578,10 @@ MonoBehaviour:
   movementInput: {x: 0, y: 0}
   verticalInput: 0
   horizontalInput: 0
+  moveAmount: 0
+  cameraInput: {x: 0, y: 0}
+  cameraInputX: 0
+  cameraInputY: 0
 --- !u!4 &1180263975 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: fc123bad5bd59b44d873d9c613b274d7, type: 3}
