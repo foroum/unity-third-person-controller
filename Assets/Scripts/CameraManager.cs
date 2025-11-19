@@ -8,6 +8,8 @@ public class CameraManager : MonoBehaviour
 
     public Transform targetTransform;  // the object the camera will follow
     public Transform cameraPivot; // the object the camera uses to pivot
+    public Transform cameraTransform; // transform of actual camera obj in scene
+    private float defaultPosition;
     private Vector3 cameraFollowVelocity = Vector3.zero;
 
     public float cameraFollowSpeed = 0.2f;
@@ -23,14 +25,15 @@ public class CameraManager : MonoBehaviour
     private void Awake()
     {
         inputManager = FindObjectOfType<InputManager>();
-        // If you want to assign via inspector, only do this if null
+        // if you want to assign via inspector, only do this if null
         if (targetTransform == null)
         {
             targetTransform = FindObjectOfType<PlayerManager>().transform;
         }
-
-        // Save initial offset between camera rig and target
+        cameraTransform = Camera.main.transform;
+        // save initial offset between camera rig and target
         offset = transform.position - targetTransform.position;
+        defaultPosition = cameraTransform.localPosition.z;
     }
 
     public void HandleAllCameraMovement()
@@ -61,18 +64,26 @@ public class CameraManager : MonoBehaviour
 
     private void RotateCamera()
     {
+        Vector3 rotation;
+        Quaternion targetRotation;
+
         lookAngle = lookAngle + (inputManager.cameraInputX * cameraLookSpeed);
         pivotAngle = pivotAngle + (inputManager.cameraInputY * cameraPivotSpeed);
         pivotAngle = Mathf.Clamp(pivotAngle, minPivotAngle, maxPivotAngle);
 
-        Vector3 rotation = Vector3.zero;
+        rotation = Vector3.zero;
         rotation.y = lookAngle;
-        Quaternion targetRotation = Quaternion.Euler(rotation);
+        targetRotation = Quaternion.Euler(rotation);
         transform.rotation = targetRotation;
 
         rotation = Vector3.zero;
         rotation.x = pivotAngle;
         targetRotation = Quaternion.Euler(rotation);
         cameraPivot.localRotation = targetRotation;
+    }
+
+    private void HandleCameraCollisions()
+    {
+        float targetPosition = defaultPosition;
     }
 }
