@@ -6,6 +6,7 @@ using UnityEngine;
 public class PlayerManager : MonoBehaviour
 {
     Animator animator;
+    AnimatorManager animatorManager;
     InputManager inputManager;
     CameraManager cameraManager;
     PlayerLocomotion playerLocomotion;
@@ -18,11 +19,18 @@ public class PlayerManager : MonoBehaviour
         inputManager = GetComponent<InputManager>();
         cameraManager = FindObjectOfType<CameraManager>();
         playerLocomotion = GetComponent<PlayerLocomotion>();
+        animatorManager = GetComponent<AnimatorManager>(); // for debug
     }
 
     private void Update()
     {
         inputManager.HandleAllInputs();
+
+        // DEBUG: force Fall anim if you still want this test
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            animatorManager.PlayTargetAnimation("Fall", true);
+        }
     }
 
     private void FixedUpdate()

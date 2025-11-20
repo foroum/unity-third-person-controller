@@ -136,7 +136,7 @@ public class PlayerLocomotion : MonoBehaviour
         {
             if (!playerManager.isInteracting)
             {
-                animatorManager.PlayTargetAnimation("Falling", true);
+                animatorManager.PlayTargetAnimation("Fall", true);
             }
 
             inAirTimer = inAirTimer + Time.deltaTime;
