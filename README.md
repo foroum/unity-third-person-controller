@@ -76,7 +76,4 @@ These are mapped using Unity’s **New Input System** via an `InputActions` asse
   - Blend based on movement magnitude
   - Hooks ready for future states (Jump, Fall, Land, Sprint)
 
----
 
-   ```bash
-   git clone https://github.com/YOUR-USERNAME/unity-third-person-controller.git
