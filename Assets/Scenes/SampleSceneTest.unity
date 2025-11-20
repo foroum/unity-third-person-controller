@@ -438,7 +438,7 @@ GameObject:
   - component: {fileID: 429149683}
   - component: {fileID: 429149682}
   - component: {fileID: 429149681}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Fall Test
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1368,6 +1368,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efc601885ce7ba3449d60001582aeb09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isInteracting: 0
 --- !u!114 &1908876119
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1380,8 +1381,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb189b1a8b0275b4e90a1cbb03680028, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inAirTimer: 0
+  leapingSpeed: 3
+  fallingSpeed: 33
+  raycastHeightOffset: 0.5
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 513
+  maxDistance: 1
   isSprinting: 0
-  walkSpeed: 2
+  isGrounded: 1
+  walkSpeed: 1.5
   runSpeed: 5
   sprintSpeed: 7
   rotationSpeed: 15
@@ -1473,7 +1483,7 @@ GameObject:
   - component: {fileID: 1950730393}
   - component: {fileID: 1950730392}
   - component: {fileID: 1950730391}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
