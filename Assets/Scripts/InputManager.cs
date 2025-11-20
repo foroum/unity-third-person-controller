@@ -5,17 +5,17 @@ using UnityEngine.InputSystem;   // <- new Input System
 
 public class InputManager : MonoBehaviour
 {
-    // Reference to the generated input actions class (from your .inputactions asset)
+    // reference to the generated input actions class (from our .inputactions asset)
     private PlayerControls playerControls;
 
-    // Optional: reference to your AnimatorManager (for updating blend tree)
+    // reference to your AnimatorManager (for updating blend tree)
     private AnimatorManager animatorManager;
 
-    [Header("Movement Input")]
     public Vector2 movementInput;      // raw input (x,y) from WASD / stick
     public float verticalInput;
     public float horizontalInput;
     public float moveAmount;           // 0..1 (how strong the movement is)
+    public bool sprintButtonPressed;
 
     public Vector2 cameraInput;
     public float cameraInputX;
