@@ -87,7 +87,7 @@ public class InputManager : MonoBehaviour
         if (animatorManager != null)
         {
             // Example: first param could be forward, second strafe
-            animatorManager.UpdateAnimatorValues(0, moveAmount);
+            animatorManager.UpdateAnimatorValues(0, moveAmount, sprintButtonPressed);
         }
     }
 

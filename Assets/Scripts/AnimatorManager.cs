@@ -14,7 +14,7 @@ public class AnimatorManager : MonoBehaviour
         horizontal = Animator.StringToHash("Horizontal");
         vertical = Animator.StringToHash("Vertical");
     }
-    public void UpdateAnimatorValues(float horizontalMovement, float verticalMovement)
+    public void UpdateAnimatorValues(float horizontalMovement, float verticalMovement, bool isSprinting)
     {
         // animation snapping
         float snappedHorizontal, snappedVertical;
@@ -63,6 +63,12 @@ public class AnimatorManager : MonoBehaviour
             snappedVertical = 0;
         }
         #endregion
+
+        if (isSprinting)
+        {
+            snappedHorizontal = horizontalMovement;
+            snappedVertical = 2;
+        } // gia na kamnei matching me to tree pou ekamame
 
         animator.SetFloat(horizontal, snappedHorizontal, 0.1f, Time.deltaTime); // 0.1f damp time = blend time so it doesn't look sudden
         animator.SetFloat(vertical, snappedVertical, 0.1f, Time.deltaTime); // changed to snappedHorizontal/Vertical so when the character stops
