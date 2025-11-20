@@ -362,6 +362,7 @@
 "Assets/Scripts/InputManager.cs"
 "Assets/Scripts/PlayerLocomotion.cs"
 "Assets/Scripts/PlayerManager.cs"
+"Assets/Scripts/ResetBool.cs"
 -langversion:9.0
 /deterministic
 /optimize+
