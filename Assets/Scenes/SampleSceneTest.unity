@@ -911,10 +911,10 @@ MonoBehaviour:
   cameraTransform: {fileID: 0}
   collisionLayers:
     serializedVersion: 2
-    m_Bits: 257
+    m_Bits: 1
   cameraCollisionR: 0
   cameraFollowSpeed: 0.2
-  cameraCollisionOffset: 0.2
+  cameraCollisionOffset: 0.3
   cameraLookSpeed: 2
   cameraPivotSpeed: 2
   lookAngle: 0

@@ -15,7 +15,7 @@ public class CameraManager : MonoBehaviour
     private Vector3 cameraVectorPosition;
 
     public float cameraCollisionR = 2;
-    private float minCollisionOffset = 0.2f;
+    private float minCollisionOffset = 0.4f; // was 0.2, changed for tests
     public float cameraFollowSpeed = 0.2f;
     public float cameraCollisionOffset = 0.2f;
     public float cameraLookSpeed = 2;
@@ -90,24 +90,39 @@ public class CameraManager : MonoBehaviour
 
     private void HandleCameraCollisions()
     {
-        float targetPosition = defaultPosition;
+        float targetZ = defaultPosition;
+
         RaycastHit hit;
         Vector3 direction = cameraTransform.position - cameraPivot.position;
         direction.Normalize();
 
-        if (Physics.SphereCast
-            (cameraPivot.transform.position, cameraCollisionR, direction, out hit, Mathf.Abs(targetPosition), collisionLayers))
-            {
-            float distance = Vector3.Distance(cameraPivot.position, hit.point);
-            targetPosition = targetPosition - (distance - cameraCollisionOffset);
-        }
-
-        if(Mathf.Abs(targetPosition) < minCollisionOffset)
+        // Cast from pivot towards the camera
+        if (Physics.SphereCast(
+                cameraPivot.position,
+                cameraCollisionR,
+                direction,
+                out hit,
+                Mathf.Abs(defaultPosition),
+                collisionLayers))
         {
-            targetPosition = targetPosition - minCollisionOffset;
+            // distance from pivot to the hit point
+            float distance = Vector3.Distance(cameraPivot.position, hit.point);
+
+            // we want the camera to sit just in front of what we hit
+            float newZ = -(distance - cameraCollisionOffset);
+
+            // never go further back than the original default Z
+            targetZ = Mathf.Clamp(newZ, defaultPosition, -minCollisionOffset);
+        }
+        else
+        {
+            // no hit – go back to default Z smoothly
+            targetZ = defaultPosition;
         }
 
-        cameraVectorPosition.z = Mathf.Lerp(cameraTransform.localPosition.z, targetPosition, 0.2f);
+        // apply smoothing on local Z
+        cameraVectorPosition = cameraTransform.localPosition;
+        cameraVectorPosition.z = Mathf.Lerp(cameraTransform.localPosition.z, targetZ, 0.2f);
         cameraTransform.localPosition = cameraVectorPosition;
     }
 }
