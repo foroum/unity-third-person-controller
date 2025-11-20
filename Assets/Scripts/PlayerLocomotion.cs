@@ -23,12 +23,16 @@ public class PlayerLocomotion : MonoBehaviour
 
     public bool isSprinting;
     public bool isGrounded;
+    public bool isJumping;
 
     public float walkSpeed = 2;
     public float runSpeed = 5;
     public float sprintSpeed = 7; // added sprinting and walking
                                      // in order to blend the animations better
     public float rotationSpeed = 15;
+
+    public float jumpHeight = 3;
+    public float gravityIntensity = -15;
 
     private void Awake()
     {
@@ -116,7 +120,7 @@ public class PlayerLocomotion : MonoBehaviour
         Vector3 rayCastOrigin = transform.position;
         rayCastOrigin.y = rayCastOrigin.y + raycastHeightOffset;
 
-        if (!isGrounded)
+        if (!isGrounded && !isJumping)
         {
             if (!playerManager.isInteracting)
             {
@@ -128,8 +132,8 @@ public class PlayerLocomotion : MonoBehaviour
             playerRigitBody.AddForce(Vector3.down * fallingSpeed * inAirTimer);
         }
 
-        //if (Physics.SphereCast(rayCastOrigin, 0.2f, Vector3.down, out hit, groundLayer)) // added 0.6f
-        if (Physics.SphereCast(rayCastOrigin, 0.2f, Vector3.down, out hit, maxDistance, groundLayer))
+        if (Physics.SphereCast(rayCastOrigin, 0.2f, Vector3.down, out hit, groundLayer)) // added 0.6f
+        // if (Physics.SphereCast(rayCastOrigin, 0.2f, Vector3.down, out hit, maxDistance, groundLayer))
         {
             if (!isGrounded && !playerManager.isInteracting) // was (!isGrounded && playerManager.isInteracting)
             {
@@ -143,6 +147,20 @@ public class PlayerLocomotion : MonoBehaviour
         else
         {
             isGrounded = false;
+        }
+    }
+
+    public void HandleJump()
+    {
+        if (isGrounded)
+        {
+            animatorManager.animator.SetBool("isJumping", true);
+            animatorManager.PlayTargetAnimation("Jump", false);
+
+            float jumpingVelocity = Mathf.Sqrt(-2 * gravityIntensity * jumpHeight);
+            Vector3 playerVelocity = moveDirection;
+            playerVelocity.y = jumpingVelocity;
+            playerRigitBody.velocity = playerVelocity;
         }
     }
 

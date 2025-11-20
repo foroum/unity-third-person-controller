@@ -19,6 +19,7 @@ public class InputManager : MonoBehaviour
     public float horizontalInput;
     public float moveAmount;           // 0..1 (how strong the movement is)
     public bool sprintButtonPressed;
+    public bool jumpButtonPressed;
 
     public Vector2 cameraInput;
     public float cameraInputX;
@@ -48,6 +49,9 @@ public class InputManager : MonoBehaviour
 
             playerControls.PlayerActions.Sprint.performed += i => sprintButtonPressed = true;
             playerControls.PlayerActions.Sprint.canceled += i => sprintButtonPressed = false;
+
+            playerControls.PlayerActions.Jump.performed += i => jumpButtonPressed = true;
+            playerControls.PlayerActions.Jump.performed += i => jumpButtonPressed = false;
         }
 
         playerControls.Enable();
@@ -66,7 +70,7 @@ public class InputManager : MonoBehaviour
     {
         HandleMovementInput();
         HandleSprintInput();
-        //HandkeJumpingInput
+        HandleJumpInput();
         //HandleActionInput
     }
 
@@ -100,6 +104,14 @@ public class InputManager : MonoBehaviour
         else
         {
             locomotion.isSprinting = false;
+        }
+    }
+    private void HandleJumpInput()
+    {
+        if (jumpButtonPressed)
+        {
+            jumpButtonPressed = false;
+            locomotion.HandleJump();
         }
     }
 }
