@@ -34,6 +34,10 @@ public class PlayerLocomotion : MonoBehaviour
     public float jumpHeight = 3;
     public float gravityIntensity = -15;
 
+    // adding double jump theory
+    //public int maxJumps = 2;
+    //private int jumpCount = 0;
+
     private void Awake()
     {
         playerManager = GetComponent<PlayerManager>();
@@ -150,6 +154,7 @@ public class PlayerLocomotion : MonoBehaviour
 
             inAirTimer = 0;
             isGrounded = true;
+            // jumpCount = 0; // reseting counter when char touches ground
             // playerManager.isInteracting = false;
         }
         else
@@ -162,6 +167,16 @@ public class PlayerLocomotion : MonoBehaviour
     {
         if (isGrounded)
         {
+            //// first jump must start from the ground
+            //if (!isGrounded && jumpCount == 0)
+            //    return;
+
+            //// already used all jumps?
+            //if (jumpCount >= maxJumps)
+            //    return;
+
+            //jumpCount++;
+
             animatorManager.animator.SetBool("isJumping", true);
             animatorManager.PlayTargetAnimation("Jump", false);
 
@@ -169,6 +184,8 @@ public class PlayerLocomotion : MonoBehaviour
             Vector3 playerVelocity = moveDirection;
             playerVelocity.y = jumpingVelocity;
             playerRigitBody.velocity = playerVelocity;
+
+            // isGrounded = false; // added for double j
         }
     }
 
