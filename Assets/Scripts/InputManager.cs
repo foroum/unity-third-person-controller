@@ -51,7 +51,7 @@ public class InputManager : MonoBehaviour
             playerControls.PlayerActions.Sprint.canceled += i => sprintButtonPressed = false;
 
             playerControls.PlayerActions.Jump.performed += i => jumpButtonPressed = true;
-            playerControls.PlayerActions.Jump.performed += i => jumpButtonPressed = false;
+            playerControls.PlayerActions.Jump.canceled += i => jumpButtonPressed = false;
         }
 
         playerControls.Enable();

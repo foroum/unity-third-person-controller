@@ -1383,7 +1383,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inAirTimer: 0
   leapingSpeed: 3
-  fallingSpeed: 33
+  fallingSpeed: 40
   raycastHeightOffset: 0.5
   groundLayer:
     serializedVersion: 2
@@ -1391,10 +1391,13 @@ MonoBehaviour:
   maxDistance: 1
   isSprinting: 0
   isGrounded: 1
+  isJumping: 0
   walkSpeed: 1.5
   runSpeed: 5
   sprintSpeed: 7
   rotationSpeed: 15
+  jumpHeight: 3
+  gravityIntensity: -15
 --- !u!114 &1908876120
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1412,6 +1415,7 @@ MonoBehaviour:
   horizontalInput: 0
   moveAmount: 0
   sprintButtonPressed: 0
+  jumpButtonPressed: 0
   cameraInput: {x: 0, y: 0}
   cameraInputX: 0
   cameraInputY: 0
@@ -1427,6 +1431,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4eda925b626875c4dbe3e346126db355, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 0}
 --- !u!136 &1908876122
 CapsuleCollider:
   m_ObjectHideFlags: 0

@@ -58,6 +58,10 @@ public class PlayerLocomotion : MonoBehaviour
 
     private void HandleMovement()
     {
+        if (isJumping)
+        {
+            return;
+        }
         moveDirection = cameraObject.forward * inputManager.verticalInput; // movement input
         moveDirection = moveDirection + cameraObject.right * inputManager.horizontalInput;
         moveDirection.Normalize(); // takes direction and keeps direction the same (for this scenario), so it's consistent
@@ -92,6 +96,10 @@ public class PlayerLocomotion : MonoBehaviour
 
     private void HandleRotation()
     {
+        if (isJumping)
+        {
+            return;
+        }
         Vector3 targetDirection = Vector3.zero;
 
         targetDirection = cameraObject.forward * inputManager.verticalInput;
