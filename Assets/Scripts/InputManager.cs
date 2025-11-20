@@ -8,6 +8,9 @@ public class InputManager : MonoBehaviour
     // reference to the generated input actions class (from our .inputactions asset)
     private PlayerControls playerControls;
 
+    // reference to PlayerLocomotion
+    PlayerLocomotion locomotion;
+
     // reference to your AnimatorManager (for updating blend tree)
     private AnimatorManager animatorManager;
 
@@ -25,6 +28,7 @@ public class InputManager : MonoBehaviour
     {
         // If you have an AnimatorManager on the same GameObject:
         animatorManager = GetComponent<AnimatorManager>();
+        locomotion = GetComponent<PlayerLocomotion>();
     }
 
     private void OnEnable()
@@ -41,6 +45,9 @@ public class InputManager : MonoBehaviour
                 movementInput = Vector2.zero;
 
             playerControls.PlayerMovement.Camera.performed += i => cameraInput = i.ReadValue<Vector2>();
+
+            playerControls.PlayerActions.Sprint.performed += i => sprintButtonPressed = true;
+            playerControls.PlayerActions.Sprint.canceled += i => sprintButtonPressed = false;
         }
 
         playerControls.Enable();
@@ -58,6 +65,7 @@ public class InputManager : MonoBehaviour
     public void HandleAllInputs()
     {
         HandleMovementInput();
+        HandleSprintInput();
         //HandkeJumpingInput
         //HandleActionInput
     }
@@ -80,6 +88,18 @@ public class InputManager : MonoBehaviour
         {
             // Example: first param could be forward, second strafe
             animatorManager.UpdateAnimatorValues(0, moveAmount);
+        }
+    }
+
+    private void HandleSprintInput()
+    {
+        if (moveAmount > 0.5f && sprintButtonPressed)
+        {
+            locomotion.isSprinting = true;
+        }
+        else
+        {
+            locomotion.isSprinting = false;
         }
     }
 }

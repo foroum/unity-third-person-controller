@@ -41,7 +41,7 @@ public class PlayerLocomotion : MonoBehaviour
 
         if (isSprinting) // added boolean to support the "stamina bar" idea
         {
-
+            moveDirection = moveDirection * sprintSpeed;
         }
         else
         {
