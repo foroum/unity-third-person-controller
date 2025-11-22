@@ -144,23 +144,40 @@ public class PlayerLocomotion : MonoBehaviour
             playerRigitBody.AddForce(Vector3.down * fallingSpeed * inAirTimer);
         }
 
-        if (Physics.SphereCast(rayCastOrigin, 0.2f, Vector3.down, out hit, groundLayer)) // added 0.6f
-        // if (Physics.SphereCast(rayCastOrigin, 0.2f, Vector3.down, out hit, maxDistance, groundLayer))
+        // if (Physics.SphereCast(rayCastOrigin, 0.2f, Vector3.down, out hit, groundLayer)) // added 0.6f
+        if (Physics.SphereCast(rayCastOrigin, 0.2f, Vector3.down, out hit, maxDistance, groundLayer)) // edit for fall anim fix
         {
-            if (!isGrounded && !playerManager.isInteracting) // was (!isGrounded && playerManager.isInteracting)
+            //    if (!isGrounded && !playerManager.isInteracting) // was (!isGrounded && playerManager.isInteracting)
+            //    {
+            //        animatorManager.PlayTargetAnimation("Land", true);
+            //    }
+
+            //    inAirTimer = 0;
+            //    isGrounded = true;
+            //    // jumpCount = 0; // reseting counter when char touches ground
+            //    // playerManager.isInteracting = false;
+            //}
+            //else
+            //{
+            //    isGrounded = false;
+            //}
+
+            if (!isGrounded && playerManager.isInteracting)
             {
                 animatorManager.PlayTargetAnimation("Land", true);
             }
 
             inAirTimer = 0;
             isGrounded = true;
-            // jumpCount = 0; // reseting counter when char touches ground
-            // playerManager.isInteracting = false;
+            isJumping = false; // edit for fall anim fix
+            animatorManager.animator.SetBool("isGrounded", true);
+            animatorManager.animator.SetBool("isJumping", false); // edit for fall anim fix
         }
         else
         {
             isGrounded = false;
-        }
+            animatorManager.animator.SetBool("isGrounded", false);
+        } // edit for fall anim fix
     }
 
     public void HandleJump()
@@ -176,7 +193,7 @@ public class PlayerLocomotion : MonoBehaviour
             //    return;
 
             //jumpCount++;
-
+            isJumping = true; //edit for fall anim fix
             animatorManager.animator.SetBool("isJumping", true);
             animatorManager.PlayTargetAnimation("Jump", false);
 
@@ -184,6 +201,9 @@ public class PlayerLocomotion : MonoBehaviour
             Vector3 playerVelocity = moveDirection;
             playerVelocity.y = jumpingVelocity;
             playerRigitBody.velocity = playerVelocity;
+
+            isGrounded = false; //edit for fall anim fix
+            animatorManager.animator.SetBool("isGrounded", false); //edit for fall anim fix
 
             // isGrounded = false; // added for double j
         }

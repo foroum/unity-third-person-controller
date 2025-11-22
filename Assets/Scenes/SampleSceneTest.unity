@@ -1388,7 +1388,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 513
-  maxDistance: 1
+  maxDistance: 0.8
   isSprinting: 0
   isGrounded: 1
   isJumping: 0
