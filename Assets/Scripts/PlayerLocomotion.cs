@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Runtime;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -11,7 +12,7 @@ public class PlayerLocomotion : MonoBehaviour
 
     Vector3 moveDirection;
     Transform cameraObject;
-    Rigidbody playerRigidBody;
+    Rigidbody playerRB;
 
     [Header("Falling Setting")]
     public float inAirTimer;
@@ -24,14 +25,16 @@ public class PlayerLocomotion : MonoBehaviour
     [Header("Flags")]
     public bool isSprinting;
     public bool isGrounded;
+    public bool isJumping;
 
-    [Header("Movement")]
+    [Header("Movement Settings")]
     public float walkSpeed = 2;
     public float runSpeed = 5;
     public float sprintSpeed = 7; // added sprinting and walking
                                      // in order to blend the animations better
     public float rotationSpeed = 15;
 
+    [Header("Jump Settings")]
     public float jumpHeight = 3;
     public float gravityIntensity = -15;
 
@@ -44,7 +47,7 @@ public class PlayerLocomotion : MonoBehaviour
         playerManager = GetComponent<PlayerManager>();
         animatorManager = GetComponent<AnimatorManager>();
         inputManager = GetComponent<InputManager>();
-        playerRigidBody = GetComponent<Rigidbody>();
+        playerRB = GetComponent<Rigidbody>();
         cameraObject = Camera.main.transform;
     }
 
@@ -87,9 +90,9 @@ public class PlayerLocomotion : MonoBehaviour
         //Vector3 movementVelocity = moveDirection;
         //playerRigitBody.velocity = movementVelocity;
         Vector3 movementVelocity = moveDirection;
-        movementVelocity.y = playerRigidBody.velocity.y; // keep vertical motion
+        movementVelocity.y = playerRB.velocity.y; // keep vertical motion
         // playerRigidBody.velocity = movementVelocity; TEST ISSUE WITH FALL ANIM AND FALL PHYSICS
-        playerRigidBody.velocity = new Vector3(movementVelocity.x, playerRigidBody.velocity.y,   // keep gravity momentum
+        playerRB.velocity = new Vector3(movementVelocity.x, playerRB.velocity.y,   // keep gravity momentum
         movementVelocity.z);
 
     }
@@ -138,8 +141,8 @@ public class PlayerLocomotion : MonoBehaviour
             inAirTimer += Time.deltaTime;
         }
 
-        // 2. Just started falling this frame
-        if (wasGrounded && !isGrounded)
+        // 2. Just started falling this frame (but not if we jump!)
+        if (wasGrounded && !isGrounded && !isJumping)
         {
             animatorManager.PlayTargetAnimation("Falling", false); // NOT interacting
         }
@@ -152,7 +155,7 @@ public class PlayerLocomotion : MonoBehaviour
         // 4. OPTIONAL: slightly stronger gravity while in air
         if (!isGrounded)
         {
-            playerRigidBody.AddForce(Vector3.down * fallingVelocity * Time.deltaTime, ForceMode.Acceleration);
+            playerRB.AddForce(Vector3.down * fallingVelocity * Time.deltaTime, ForceMode.Acceleration);
         }
     }
 
@@ -262,4 +265,18 @@ public class PlayerLocomotion : MonoBehaviour
     //        // playerRigitBody.AddForce(Vector3.down * fallingSpeed * Time.deltaTime, ForceMode.Acceleration);
     //    }
     //}
+
+    public void HandleJump()
+    {
+        if (!isGrounded) return;  // can't jump in air
+
+        isJumping = true;
+        animatorManager.animator.SetBool("isJumping", true);
+        animatorManager.PlayTargetAnimation("Jump", false);
+
+        float jumpingVelocity = Mathf.Sqrt(-2 * gravityIntensity * jumpHeight);
+        Vector3 playerVelocity = moveDirection;
+        playerVelocity.y = jumpingVelocity;
+        playerRB.velocity = playerVelocity;
+    }
 }

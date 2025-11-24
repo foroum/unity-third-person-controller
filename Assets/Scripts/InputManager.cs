@@ -70,7 +70,7 @@ public class InputManager : MonoBehaviour
     {
         HandleMovementInput();
         HandleSprintInput();
-        //HandleJumpInput();
+        HandleJumpInput();
         //HandleActionInput
     }
 
@@ -106,12 +106,12 @@ public class InputManager : MonoBehaviour
             locomotion.isSprinting = false;
         }
     }
-    //    private void HandleJumpInput()
-    //    {
-    //        if (jumpButtonPressed)
-    //        {
-    //            jumpButtonPressed = false;
-    //            locomotion.HandleJump();
-    //        }
-    //    }
+    private void HandleJumpInput()
+    {
+        if (jumpButtonPressed)
+        {
+            jumpButtonPressed = false;
+            locomotion.HandleJump();
+        }
+    }
 }

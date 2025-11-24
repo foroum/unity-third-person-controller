@@ -363,6 +363,7 @@
 "Assets/Scripts/PlayerLocomotion.cs"
 "Assets/Scripts/PlayerManager.cs"
 "Assets/Scripts/ResetBool.cs"
+"Assets/Scripts/ResetJump.cs"
 -langversion:9.0
 /deterministic
 /optimize+
