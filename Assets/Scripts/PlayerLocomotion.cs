@@ -88,7 +88,9 @@ public class PlayerLocomotion : MonoBehaviour
         //playerRigitBody.velocity = movementVelocity;
         Vector3 movementVelocity = moveDirection;
         movementVelocity.y = playerRigidBody.velocity.y; // keep vertical motion
-        playerRigidBody.velocity = movementVelocity;
+        // playerRigidBody.velocity = movementVelocity; TEST ISSUE WITH FALL ANIM AND FALL PHYSICS
+        playerRigidBody.velocity = new Vector3(movementVelocity.x, playerRigidBody.velocity.y,   // keep gravity momentum
+        movementVelocity.z);
 
     }
 

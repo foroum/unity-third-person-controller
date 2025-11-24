@@ -8,11 +8,37 @@ public class AnimatorManager : MonoBehaviour
     int horizontal;
     int vertical;
 
+    [Header("Added For Debugging")]
+    Rigidbody rb;
+    PlayerManager playerManager;
+
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
         horizontal = Animator.StringToHash("Horizontal");
         vertical = Animator.StringToHash("Vertical");
+        // for falling
+        rb = GetComponent<Rigidbody>();
+        playerManager = GetComponent<PlayerManager>();
+    }
+
+    // for falling
+    private void OnAnimatorMove()
+    {
+        if (playerManager == null || rb == null)
+            return;
+
+        // Only use root motion when interacting (e.g. attack, roll)
+        if (!playerManager.isInteracting)
+            return;
+
+        float delta = Time.deltaTime;
+        Vector3 deltaPosition = animator.deltaPosition;
+        deltaPosition.y = 0; // ignore vertical from animation
+
+        Vector3 velocity = deltaPosition / delta;
+        rb.velocity = new Vector3(velocity.x, rb.velocity.y, velocity.z);
     }
 
     public void PlayTargetAnimation(string targetAnimation, bool isInteracting)
