@@ -11,20 +11,21 @@ public class PlayerLocomotion : MonoBehaviour
 
     Vector3 moveDirection;
     Transform cameraObject;
-    Rigidbody playerRigitBody;
+    Rigidbody playerRigidBody;
 
+    [Header("Falling Setting")]
     public float inAirTimer;
-    public float leapingSpeed;
-    public float fallingSpeed;
+    public float leapingVelocity;
+    public float fallingVelocity;
     public float raycastHeightOffset = 0.5f;
     public LayerMask groundLayer;
-    public float maxDistance = 1;
+    public float maxDistance;
 
-
+    [Header("Flags")]
     public bool isSprinting;
     public bool isGrounded;
-    public bool isJumping;
 
+    [Header("Movement")]
     public float walkSpeed = 2;
     public float runSpeed = 5;
     public float sprintSpeed = 7; // added sprinting and walking
@@ -43,29 +44,22 @@ public class PlayerLocomotion : MonoBehaviour
         playerManager = GetComponent<PlayerManager>();
         animatorManager = GetComponent<AnimatorManager>();
         inputManager = GetComponent<InputManager>();
-        playerRigitBody = GetComponent<Rigidbody>();
+        playerRigidBody = GetComponent<Rigidbody>();
         cameraObject = Camera.main.transform;
     }
 
     public void HandleAllMovement()
     {
-        // HandleFallingLandingSimple();
         HandleFallingAndLanding();
 
         if (playerManager.isInteracting)
             return;
-        // debugging
 
         HandleMovement();
         HandleRotation();
     }
-
     private void HandleMovement()
     {
-        if (isJumping)
-        {
-            return;
-        }
         moveDirection = cameraObject.forward * inputManager.verticalInput; // movement input
         moveDirection = moveDirection + cameraObject.right * inputManager.horizontalInput;
         moveDirection.Normalize(); // takes direction and keeps direction the same (for this scenario), so it's consistent
@@ -93,17 +87,13 @@ public class PlayerLocomotion : MonoBehaviour
         //Vector3 movementVelocity = moveDirection;
         //playerRigitBody.velocity = movementVelocity;
         Vector3 movementVelocity = moveDirection;
-        movementVelocity.y = playerRigitBody.velocity.y; // keep vertical motion
-        playerRigitBody.velocity = movementVelocity;
+        movementVelocity.y = playerRigidBody.velocity.y; // keep vertical motion
+        playerRigidBody.velocity = movementVelocity;
 
     }
 
     private void HandleRotation()
     {
-        if (isJumping)
-        {
-            return;
-        }
         Vector3 targetDirection = Vector3.zero;
 
         targetDirection = cameraObject.forward * inputManager.verticalInput;
@@ -125,89 +115,115 @@ public class PlayerLocomotion : MonoBehaviour
         transform.rotation = playerRotation;
     }
 
-
+    // debugging
     private void HandleFallingAndLanding()
     {
         RaycastHit hit;
         Vector3 rayCastOrigin = transform.position;
-        rayCastOrigin.y = rayCastOrigin.y + raycastHeightOffset;
+        rayCastOrigin.y += raycastHeightOffset;
 
-        if (!isGrounded && !isJumping)
+        bool wasGrounded = isGrounded;
+
+        // 1. Ground check
+        if (Physics.SphereCast(rayCastOrigin, 0.2f, Vector3.down, out hit, maxDistance, groundLayer))
         {
-            if (!playerManager.isInteracting)
-            {
-                animatorManager.PlayTargetAnimation("Fall", true);
-            }
-
-            inAirTimer = inAirTimer + Time.deltaTime;
-            playerRigitBody.AddForce(transform.forward * leapingSpeed);
-            playerRigitBody.AddForce(Vector3.down * fallingSpeed * inAirTimer);
-        }
-
-        // if (Physics.SphereCast(rayCastOrigin, 0.2f, Vector3.down, out hit, groundLayer)) // added 0.6f
-        if (Physics.SphereCast(rayCastOrigin, 0.2f, Vector3.down, out hit, maxDistance, groundLayer)) // edit for fall anim fix
-        {
-            //    if (!isGrounded && !playerManager.isInteracting) // was (!isGrounded && playerManager.isInteracting)
-            //    {
-            //        animatorManager.PlayTargetAnimation("Land", true);
-            //    }
-
-            //    inAirTimer = 0;
-            //    isGrounded = true;
-            //    // jumpCount = 0; // reseting counter when char touches ground
-            //    // playerManager.isInteracting = false;
-            //}
-            //else
-            //{
-            //    isGrounded = false;
-            //}
-
-            if (!isGrounded && playerManager.isInteracting)
-            {
-                animatorManager.PlayTargetAnimation("Land", true);
-            }
-
-            inAirTimer = 0;
             isGrounded = true;
-            isJumping = false; // edit for fall anim fix
-            animatorManager.animator.SetBool("isGrounded", true);
-            animatorManager.animator.SetBool("isJumping", false); // edit for fall anim fix
+            inAirTimer = 0f;
         }
         else
         {
             isGrounded = false;
-            animatorManager.animator.SetBool("isGrounded", false);
-        } // edit for fall anim fix
-    }
+            inAirTimer += Time.deltaTime;
+        }
 
-    public void HandleJump()
-    {
-        if (isGrounded)
+        // 2. Just started falling this frame
+        if (wasGrounded && !isGrounded)
         {
-            //// first jump must start from the ground
-            //if (!isGrounded && jumpCount == 0)
-            //    return;
+            animatorManager.PlayTargetAnimation("Falling", false); // NOT interacting
+        }
+        // 3. Just landed this frame
+        else if (!wasGrounded && isGrounded)
+        {
+            animatorManager.PlayTargetAnimation("Land", false); // NOT interacting
+        }
 
-            //// already used all jumps?
-            //if (jumpCount >= maxJumps)
-            //    return;
-
-            //jumpCount++;
-            isJumping = true; //edit for fall anim fix
-            animatorManager.animator.SetBool("isJumping", true);
-            animatorManager.PlayTargetAnimation("Jump", false);
-
-            float jumpingVelocity = Mathf.Sqrt(-2 * gravityIntensity * jumpHeight);
-            Vector3 playerVelocity = moveDirection;
-            playerVelocity.y = jumpingVelocity;
-            playerRigitBody.velocity = playerVelocity;
-
-            isGrounded = false; //edit for fall anim fix
-            animatorManager.animator.SetBool("isGrounded", false); //edit for fall anim fix
-
-            // isGrounded = false; // added for double j
+        // 4. OPTIONAL: slightly stronger gravity while in air
+        if (!isGrounded)
+        {
+            playerRigidBody.AddForce(Vector3.down * fallingVelocity * Time.deltaTime, ForceMode.Acceleration);
         }
     }
+
+    //private void HandleFallingAndLanding()
+    //{
+    //    RaycastHit hit;
+    //    Vector3 rayCastOrigin = transform.position;
+    //    rayCastOrigin.y = rayCastOrigin.y + raycastHeightOffset;
+
+    //    bool wasGrounded = isGrounded;
+
+    //    // ✅ Proper ground check with maxDistance + layer
+    //    if (Physics.SphereCast(rayCastOrigin, 0.2f, Vector3.down, out hit, maxDistance, groundLayer))
+    //    {
+    //        isGrounded = true;
+    //        inAirTimer = 0;
+
+    //        if (!wasGrounded && !playerManager.isInteracting)
+    //        {
+    //            animatorManager.PlayTargetAnimation("Land", true);
+    //        }
+    //    }
+    //    else
+    //    {
+    //        isGrounded = false;
+    //        inAirTimer += Time.deltaTime;
+
+    //        // We just left the ground → start falling anim
+    //        if (wasGrounded && !playerManager.isInteracting)
+    //        {
+    //            animatorManager.PlayTargetAnimation("Falling", true);
+    //        }
+
+    //        // ✅ Only apply downward force (no forward)
+    //        playerRigidBody.AddForce(
+    //            Vector3.down * fallingVelocity * inAirTimer,
+    //            ForceMode.Acceleration
+    //        );
+    //    }
+    //}
+    //private void HandleFallingAndLanding()
+    //{
+    //    RaycastHit hit;
+    //    Vector3 rayCastOrigin = transform.position; // at the feet of the player ?
+    //    rayCastOrigin.y = rayCastOrigin.y + raycastHeightOffset;
+
+    //    if (!isGrounded)
+    //    {
+    //        if (!playerManager.isInteracting)
+    //        {
+    //            animatorManager.PlayTargetAnimation("Falling", true);
+    //        }
+
+    //        inAirTimer = inAirTimer + Time.deltaTime;
+    //        playerRigidBody.AddForce(transform.forward * leapingVelocity);
+    //        playerRigidBody.AddForce(Vector3.down * fallingVelocity * inAirTimer); // added in air timer so the longer it's in the air, the faster it falls
+    //    }
+
+    //    if (Physics.SphereCast(rayCastOrigin, 0.2f, Vector3.down, out hit, maxDistance, groundLayer))
+    //    {
+    //        if (!isGrounded && !playerManager.isInteracting)
+    //        {
+    //            animatorManager.PlayTargetAnimation("Land", true);
+    //        }
+
+    //        inAirTimer = 0; // to reset the timer
+    //        isGrounded = true;
+    //    }
+    //    else
+    //    {
+    //        isGrounded = false;
+    //    }
+    //}
 
     //private void HandleFallingLanding()
     //{
@@ -244,37 +260,4 @@ public class PlayerLocomotion : MonoBehaviour
     //        // playerRigitBody.AddForce(Vector3.down * fallingSpeed * Time.deltaTime, ForceMode.Acceleration);
     //    }
     //}
-
-
-    //private void HandleFallingLandingSimple()
-    //{
-    //    RaycastHit hit;
-    //    Vector3 raycastOrigin = transform.position;
-    //    raycastOrigin.y += raycastOffset;
-
-    //    bool wasGrounded = isGrounded;
-
-    //    // Check for ground just below us
-    //    if (Physics.SphereCast(raycastOrigin, 0.2f, Vector3.down, out hit, 0.6f, ground))
-    //    {
-    //        isGrounded = true;
-
-    //        // Just landed this frame
-    //        if (!wasGrounded && !playerManager.isInteracting && playerRigitBody.velocity.y < -0.1f)
-    //        {
-    //            animatorManager.PlayTargetAnimation("Land", false);
-    //        }
-    //    }
-    //    else
-    //    {
-    //        isGrounded = false;
-
-    //        // We are falling (going down)
-    //        if (!playerManager.isInteracting && playerRigitBody.velocity.y < -0.1f)
-    //        {
-    //            animatorManager.PlayTargetAnimation("Fall", false);
-    //        }
-    //    }
-    //}
-
 }

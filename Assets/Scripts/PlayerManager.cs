@@ -26,11 +26,6 @@ public class PlayerManager : MonoBehaviour
     {
         inputManager.HandleAllInputs();
 
-        // DEBUG: force Fall anim if you still want this test
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            animatorManager.PlayTargetAnimation("Fall", true);
-        }
     }
 
     private void FixedUpdate()
@@ -44,7 +39,7 @@ public class PlayerManager : MonoBehaviour
         cameraManager.HandleAllCameraMovement();
 
         isInteracting = animator.GetBool("isInteracting"); // checking to isInteracting
-        playerLocomotion.isJumping = animator.GetBool("isJumping");
-        animator.SetBool("isGrounded", playerLocomotion.isGrounded);
+        //playerLocomotion.isJumping = animator.GetBool("isJumping");
+        //animator.SetBool("isGrounded", playerLocomotion.isGrounded);
     }
 }
