@@ -121,6 +121,44 @@ public class PlayerLocomotion : MonoBehaviour
     }
 
     // debugging
+    //private void HandleFallingAndLanding()
+    //{
+    //    RaycastHit hit;
+    //    Vector3 rayCastOrigin = transform.position;
+    //    rayCastOrigin.y += raycastHeightOffset;
+
+    //    bool wasGrounded = isGrounded;
+
+    //    // 1. Ground check
+    //    if (Physics.SphereCast(rayCastOrigin, 0.2f, Vector3.down, out hit, maxDistance, groundLayer))
+    //    {
+    //        isGrounded = true;
+    //        inAirTimer = 0f;
+    //    }
+    //    else
+    //    {
+    //        isGrounded = false;
+    //        inAirTimer += Time.deltaTime;
+    //    }
+
+    //    // 2. Just started falling this frame (but not if we jump!)
+    //    if (wasGrounded && !isGrounded && !isJumping)
+    //    {
+    //        animatorManager.PlayTargetAnimation("Falling", false); // NOT interacting
+    //    }
+    //    // 3. Just landed this frame
+    //    else if (!wasGrounded && isGrounded)
+    //    {
+    //        animatorManager.PlayTargetAnimation("Land", false); // NOT interacting
+    //    }
+
+    //    // 4. OPTIONAL: slightly stronger gravity while in air
+    //    if (!isGrounded)
+    //    {
+    //        playerRB.AddForce(Vector3.down * fallingVelocity * Time.deltaTime, ForceMode.Acceleration);
+    //    }
+    //}
+    // best one yet ^^
     private void HandleFallingAndLanding()
     {
         RaycastHit hit;
@@ -134,30 +172,41 @@ public class PlayerLocomotion : MonoBehaviour
         {
             isGrounded = true;
             inAirTimer = 0f;
+
+            // Just landed this frame
+            if (!wasGrounded)
+            {
+                // we finished a jump or a fall
+                isJumping = false;
+                animatorManager.animator.SetBool("isJumping", false);
+
+                animatorManager.PlayTargetAnimation("Land", false);
+            }
         }
         else
         {
             isGrounded = false;
             inAirTimer += Time.deltaTime;
-        }
 
-        // 2. Just started falling this frame (but not if we jump!)
-        if (wasGrounded && !isGrounded && !isJumping)
-        {
-            animatorManager.PlayTargetAnimation("Falling", false); // NOT interacting
-        }
-        // 3. Just landed this frame
-        else if (!wasGrounded && isGrounded)
-        {
-            animatorManager.PlayTargetAnimation("Land", false); // NOT interacting
-        }
+            // Walked off a ledge (not jumping) -> start falling immediately
+            if (wasGrounded && !isJumping)
+            {
+                animatorManager.PlayTargetAnimation("Falling", false);
+            }
 
-        // 4. OPTIONAL: slightly stronger gravity while in air
-        if (!isGrounded)
-        {
+            // If we *are* jumping, swap to Falling once we start going down
+            if (isJumping && playerRB.velocity.y <= 0f)
+            {
+                isJumping = false;
+                animatorManager.animator.SetBool("isJumping", false);
+                animatorManager.PlayTargetAnimation("Falling", false);
+            }
+
+            // Extra gravity
             playerRB.AddForce(Vector3.down * fallingVelocity * Time.deltaTime, ForceMode.Acceleration);
         }
     }
+
 
     //private void HandleFallingAndLanding()
     //{
