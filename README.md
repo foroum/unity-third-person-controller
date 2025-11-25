@@ -8,7 +8,7 @@ This project is a small standalone testbed for:
 - Basic movement animations
 - Input System setup
 
-A lot of the logic here can be reused in other projects (for example, Cat Postmaster / PostCat).
+A lot of the logic here can be reused in other projects.
 
 ---
 
@@ -19,18 +19,19 @@ It focuses on clean, readable code and modular systems that can be dropped into 
 
 ### Implemented
 
-- New **Input System** setup (actions for move, look, jump, sprint – even if some are WIP)
+- New **Input System** setup (actions for move, look, jump, sprint - even if some are WIP)
 - **Player movement** on flat ground (forward / backward / strafe)
 - **Camera follow + orbit** around the player
 - Basic **movement animation** (idle / walk or run blend) driven by movement input
-
-### In Progress / Planned
-
 - Jumping (with proper grounding checks)
 - Sprinting (with speed multiplier + animation)
 - Falling / landing states
 - Better behaviour on **stairs and slopes**
 - Extra polish on camera collision and smoothing
+
+### In Progress / Planned
+- TBD
+
 
 ---
 
@@ -55,7 +56,7 @@ These are mapped using Unity’s **New Input System** via an `InputActions` asse
 ## 3. Technical Details
 
 - **Engine:** Unity (2022.3.62f2)
-- **Render Pipeline:** Built-in / URP (select what you used)
+- **Render Pipeline:** URP
 - **Language:** C#
 - **Target Platform:** PC (Windows)
 
