@@ -38,6 +38,10 @@ public class PlayerLocomotion : MonoBehaviour
     public float jumpHeight = 3;
     public float gravityIntensity = -15;
 
+    //[Header("Ground Snapping")]
+    //public float maxStepHeight = 0.5f;      // how high a step we can snap to
+    //public float groundSnapSpeed = 20f;     // how fast we blend to ground when moving
+
     // adding double jump theory
     //public int maxJumps = 2;
     //private int jumpCount = 0;
@@ -163,13 +167,17 @@ public class PlayerLocomotion : MonoBehaviour
     {
         RaycastHit hit;
         Vector3 rayCastOrigin = transform.position;
+        // Vector3 targetPos;
         rayCastOrigin.y += raycastHeightOffset;
+        //targetPos = transform.position;
 
         bool wasGrounded = isGrounded;
 
         // 1. Ground check
         if (Physics.SphereCast(rayCastOrigin, 0.2f, Vector3.down, out hit, maxDistance, groundLayer))
         {
+            Vector3 rayCastHitPoint = hit.point;
+            // targetPos.y = rayCastHitPoint.y;
             isGrounded = true;
             inAirTimer = 0f;
 
@@ -205,81 +213,20 @@ public class PlayerLocomotion : MonoBehaviour
             // Extra gravity
             playerRB.AddForce(Vector3.down * fallingVelocity * Time.deltaTime, ForceMode.Acceleration);
         }
+
+        //if (isGrounded && !isJumping)
+        //{
+        //    if (playerManager.isInteracting || inputManager.moveAmount > 0)
+        //    {
+        //        transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime / 0.1f);
+        //    }
+        //    else
+        //    {
+        //        transform.position = targetPos;
+        //    }
+        //}
     }
-
-
     //private void HandleFallingAndLanding()
-    //{
-    //    RaycastHit hit;
-    //    Vector3 rayCastOrigin = transform.position;
-    //    rayCastOrigin.y = rayCastOrigin.y + raycastHeightOffset;
-
-    //    bool wasGrounded = isGrounded;
-
-    //    // ✅ Proper ground check with maxDistance + layer
-    //    if (Physics.SphereCast(rayCastOrigin, 0.2f, Vector3.down, out hit, maxDistance, groundLayer))
-    //    {
-    //        isGrounded = true;
-    //        inAirTimer = 0;
-
-    //        if (!wasGrounded && !playerManager.isInteracting)
-    //        {
-    //            animatorManager.PlayTargetAnimation("Land", true);
-    //        }
-    //    }
-    //    else
-    //    {
-    //        isGrounded = false;
-    //        inAirTimer += Time.deltaTime;
-
-    //        // We just left the ground → start falling anim
-    //        if (wasGrounded && !playerManager.isInteracting)
-    //        {
-    //            animatorManager.PlayTargetAnimation("Falling", true);
-    //        }
-
-    //        // ✅ Only apply downward force (no forward)
-    //        playerRigidBody.AddForce(
-    //            Vector3.down * fallingVelocity * inAirTimer,
-    //            ForceMode.Acceleration
-    //        );
-    //    }
-    //}
-    //private void HandleFallingAndLanding()
-    //{
-    //    RaycastHit hit;
-    //    Vector3 rayCastOrigin = transform.position; // at the feet of the player ?
-    //    rayCastOrigin.y = rayCastOrigin.y + raycastHeightOffset;
-
-    //    if (!isGrounded)
-    //    {
-    //        if (!playerManager.isInteracting)
-    //        {
-    //            animatorManager.PlayTargetAnimation("Falling", true);
-    //        }
-
-    //        inAirTimer = inAirTimer + Time.deltaTime;
-    //        playerRigidBody.AddForce(transform.forward * leapingVelocity);
-    //        playerRigidBody.AddForce(Vector3.down * fallingVelocity * inAirTimer); // added in air timer so the longer it's in the air, the faster it falls
-    //    }
-
-    //    if (Physics.SphereCast(rayCastOrigin, 0.2f, Vector3.down, out hit, maxDistance, groundLayer))
-    //    {
-    //        if (!isGrounded && !playerManager.isInteracting)
-    //        {
-    //            animatorManager.PlayTargetAnimation("Land", true);
-    //        }
-
-    //        inAirTimer = 0; // to reset the timer
-    //        isGrounded = true;
-    //    }
-    //    else
-    //    {
-    //        isGrounded = false;
-    //    }
-    //}
-
-    //private void HandleFallingLanding()
     //{
     //    RaycastHit hit;
     //    Vector3 rayCastOrigin = transform.position;
@@ -287,33 +234,85 @@ public class PlayerLocomotion : MonoBehaviour
 
     //    bool wasGrounded = isGrounded;
 
-    //    // Check for ground just below the player
-    //    if (Physics.SphereCast(rayCastOrigin, 0.2f, Vector3.down, out hit, 0.6f, groundLayer))
+    //    // 1. Check ground under us
+    //    if (Physics.SphereCast(rayCastOrigin, 0.3f, Vector3.down, out hit, maxDistance, groundLayer))
     //    {
-    //        isGrounded = true;
-    //        inAirTimer = 0f;
+    //        float groundY = hit.point.y;
+    //        float currentY = playerRB.position.y;
+    //        float distanceToGround = currentY - groundY;
 
-    //        // Just landed this frame
-    //        if (!wasGrounded && playerRigitBody.velocity.y < -0.1f)
+    //        // Are we close enough that it’s just a step / slope?
+    //        bool closeEnoughToSnap = distanceToGround >= 0f && distanceToGround <= maxStepHeight;
+
+    //        isGrounded = closeEnoughToSnap;
+    //        if (isGrounded)
     //        {
-    //            animatorManager.PlayTargetAnimation("Land", false); // NOT interacting
+    //            inAirTimer = 0f;
+
+    //            // Just landed this frame
+    //            if (!wasGrounded)
+    //            {
+    //                isJumping = false;
+    //                animatorManager.animator.SetBool("isJumping", false);
+    //                animatorManager.PlayTargetAnimation("Land", false);
+    //            }
+
+    //            // 👉 YOUR IDEA: snap to ground for slopes / stairs
+    //            if (!isJumping)
+    //            {
+    //                Vector3 rbPos = playerRB.position;
+
+    //                float targetY;
+    //                if (playerManager.isInteracting || inputManager.moveAmount > 0)
+    //                {
+    //                    // smooth when moving / interacting
+    //                    targetY = Mathf.Lerp(rbPos.y, groundY, Time.deltaTime * groundSnapSpeed);
+    //                }
+    //                else
+    //                {
+    //                    // snap instantly when idle
+    //                    targetY = groundY;
+    //                }
+
+    //                rbPos.y = targetY;
+    //                playerRB.MovePosition(rbPos);   // use RB instead of transform.position
+    //            }
+    //        }
+    //        else
+    //        {
+    //            // ground is too far below: we are actually falling
+    //            isGrounded = false;
     //        }
     //    }
     //    else
     //    {
     //        isGrounded = false;
+    //    }
+
+    //    // 2. Handle in-air logic (falling / jumping)
+    //    if (!isGrounded)
+    //    {
     //        inAirTimer += Time.deltaTime;
 
-    //        // Just left the ground and are moving down → start fall anim
-    //        if (wasGrounded && playerRigitBody.velocity.y < -0.1f)
+    //        // walked off edge (not jumping)
+    //        if (wasGrounded && !isJumping)
     //        {
-    //            animatorManager.PlayTargetAnimation("Fall", false); // NOT interacting
+    //            animatorManager.PlayTargetAnimation("Falling", false);
     //        }
 
-    //        // (Optional) extra gravity if you want snappier fall:
-    //        // playerRigitBody.AddForce(Vector3.down * fallingSpeed * Time.deltaTime, ForceMode.Acceleration);
+    //        // if we jumped, switch to Falling once we start going down
+    //        if (isJumping && playerRB.velocity.y <= 0f)
+    //        {
+    //            isJumping = false;
+    //            animatorManager.animator.SetBool("isJumping", false);
+    //            animatorManager.PlayTargetAnimation("Falling", false);
+    //        }
+
+    //        // extra gravity
+    //        playerRB.AddForce(Vector3.down * fallingVelocity * Time.deltaTime, ForceMode.Acceleration);
     //    }
     //}
+
 
     public void HandleJump()
     {
