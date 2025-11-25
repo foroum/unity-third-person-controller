@@ -38,6 +38,10 @@ public class PlayerLocomotion : MonoBehaviour
     public float jumpHeight = 3;
     public float gravityIntensity = -15;
 
+    [Header("Slope Handling")]
+    public float maxSlopeAngle = 45f;
+    private RaycastHit slopeHit;
+
     //[Header("Ground Snapping")]
     //public float maxStepHeight = 0.5f;      // how high a step we can snap to
     //public float groundSnapSpeed = 20f;     // how fast we blend to ground when moving
@@ -65,8 +69,25 @@ public class PlayerLocomotion : MonoBehaviour
         HandleMovement();
         HandleRotation();
     }
+
+    private bool OnSlope()
+    {
+        // start ray a tiny bit above the player position so it doesn't start inside the ground
+        Vector3 origin = transform.position + Vector3.up * 0.1f;
+
+        if (Physics.Raycast(origin, Vector3.down, out slopeHit, 1.5f, groundLayer))
+        {
+            float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
+            // angle > 0 so we don't treat flat ground as a slope
+            return angle > 0f && angle <= maxSlopeAngle;
+        }
+
+        return false;
+    }
+
     private void HandleMovement()
     {
+        // base moveDirection from camera
         moveDirection = cameraObject.forward * inputManager.verticalInput; // movement input
         moveDirection = moveDirection + cameraObject.right * inputManager.horizontalInput;
         moveDirection.Normalize(); // takes direction and keeps direction the same (for this scenario), so it's consistent
@@ -74,6 +95,7 @@ public class PlayerLocomotion : MonoBehaviour
         // need to edit so speed is ewuals to how much the joystic(ig for controller only) is moving -- aka an en llio walk, else halfway run, else full sprint?
         // idea not be able to sprint all the tume, add like a "stamina bar"
 
+        // speed type
         if (isSprinting) // added boolean to support the "stamina bar" idea
         {
             moveDirection = moveDirection * sprintSpeed;
@@ -93,11 +115,35 @@ public class PlayerLocomotion : MonoBehaviour
 
         //Vector3 movementVelocity = moveDirection;
         //playerRigitBody.velocity = movementVelocity;
-        Vector3 movementVelocity = moveDirection;
+
+        // bellow what i have been using before adding idea for slop movement
+        /* Vector3 movementVelocity = moveDirection;
         movementVelocity.y = playerRB.velocity.y; // keep vertical motion
-        // playerRigidBody.velocity = movementVelocity; TEST ISSUE WITH FALL ANIM AND FALL PHYSICS
         playerRB.velocity = new Vector3(movementVelocity.x, playerRB.velocity.y,   // keep gravity momentum
-        movementVelocity.z);
+        movementVelocity.z); */
+
+        // NEW FOR SLOPE HANDLING TEST project onto slope plane if grounded & on slope
+        Vector3 finalMove = moveDirection;
+
+        if (isGrounded && OnSlope())
+        {
+            // project our desired movement onto the slope surface
+            finalMove = Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized;
+
+            // keep our speed magnitude
+            finalMove *= moveDirection.magnitude;
+        }
+
+        // 4. apply velocity (only x/z, keep existing y for jump/fall)
+        Vector3 movementVelocity = finalMove;
+        movementVelocity.y = playerRB.velocity.y;
+
+        playerRB.velocity = new Vector3(
+            movementVelocity.x,
+            playerRB.velocity.y,   // vertical handled by jump/fall
+            movementVelocity.z
+        );
+
 
     }
 
@@ -226,92 +272,6 @@ public class PlayerLocomotion : MonoBehaviour
         //    }
         //}
     }
-    //private void HandleFallingAndLanding()
-    //{
-    //    RaycastHit hit;
-    //    Vector3 rayCastOrigin = transform.position;
-    //    rayCastOrigin.y += raycastHeightOffset;
-
-    //    bool wasGrounded = isGrounded;
-
-    //    // 1. Check ground under us
-    //    if (Physics.SphereCast(rayCastOrigin, 0.3f, Vector3.down, out hit, maxDistance, groundLayer))
-    //    {
-    //        float groundY = hit.point.y;
-    //        float currentY = playerRB.position.y;
-    //        float distanceToGround = currentY - groundY;
-
-    //        // Are we close enough that it’s just a step / slope?
-    //        bool closeEnoughToSnap = distanceToGround >= 0f && distanceToGround <= maxStepHeight;
-
-    //        isGrounded = closeEnoughToSnap;
-    //        if (isGrounded)
-    //        {
-    //            inAirTimer = 0f;
-
-    //            // Just landed this frame
-    //            if (!wasGrounded)
-    //            {
-    //                isJumping = false;
-    //                animatorManager.animator.SetBool("isJumping", false);
-    //                animatorManager.PlayTargetAnimation("Land", false);
-    //            }
-
-    //            // 👉 YOUR IDEA: snap to ground for slopes / stairs
-    //            if (!isJumping)
-    //            {
-    //                Vector3 rbPos = playerRB.position;
-
-    //                float targetY;
-    //                if (playerManager.isInteracting || inputManager.moveAmount > 0)
-    //                {
-    //                    // smooth when moving / interacting
-    //                    targetY = Mathf.Lerp(rbPos.y, groundY, Time.deltaTime * groundSnapSpeed);
-    //                }
-    //                else
-    //                {
-    //                    // snap instantly when idle
-    //                    targetY = groundY;
-    //                }
-
-    //                rbPos.y = targetY;
-    //                playerRB.MovePosition(rbPos);   // use RB instead of transform.position
-    //            }
-    //        }
-    //        else
-    //        {
-    //            // ground is too far below: we are actually falling
-    //            isGrounded = false;
-    //        }
-    //    }
-    //    else
-    //    {
-    //        isGrounded = false;
-    //    }
-
-    //    // 2. Handle in-air logic (falling / jumping)
-    //    if (!isGrounded)
-    //    {
-    //        inAirTimer += Time.deltaTime;
-
-    //        // walked off edge (not jumping)
-    //        if (wasGrounded && !isJumping)
-    //        {
-    //            animatorManager.PlayTargetAnimation("Falling", false);
-    //        }
-
-    //        // if we jumped, switch to Falling once we start going down
-    //        if (isJumping && playerRB.velocity.y <= 0f)
-    //        {
-    //            isJumping = false;
-    //            animatorManager.animator.SetBool("isJumping", false);
-    //            animatorManager.PlayTargetAnimation("Falling", false);
-    //        }
-
-    //        // extra gravity
-    //        playerRB.AddForce(Vector3.down * fallingVelocity * Time.deltaTime, ForceMode.Acceleration);
-    //    }
-    //}
 
 
     public void HandleJump()
